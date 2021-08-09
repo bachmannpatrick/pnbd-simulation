@@ -1,4 +1,6 @@
 
+#Preparation ----
+#Load libaries
 library(CLVTools)
 library(ggplot2)
 library(lubridate)
@@ -7,17 +9,19 @@ library(data.table)
 library(foreach)
 library(doParallel)
 
+# source the function that does all the magic
 source("functions/pnbd_Simulation_Dynamic.R")
 
-#Set a seed
+#Set a seed to ensure consisten results
 set.seed(12345)
 
 # Load the exogenous covariates (they are not generated!)
 # Currently there are covariates for 11000 customers
 load("data/covariates.Rdata")
 
+#Settings ----
 # Number of customers to be simulated
-n = 2000 # max: 4206 customers due to exogenous contextual factors
+n = 2000 # max: 11000 customers due to exogenous contextual factors
 
 # Duration of estimation period in weeks
 estimation.duration <- 104
@@ -30,17 +34,18 @@ alpha = 170 # Shape parameter purchase process
 s = 0.5 # Homogeneity attrition process
 beta = 8 # Shape parameter attrition process
 
-# Transaction contextual factor parameters
+# Transaction contextual factor parameters. Currently up to 3 factors are supported.
 gamma1=1 
 #gamma2=0.5
 #gamma3=0
 
-# Lifetime contextual factor parameters
+# Lifetime contextual factor parameters. Currently up to 3 factors are supported.
 gamma4=1
 #gamma5=0.5
 #gamma6=0
 
-covariate.names <- c("direct.marketing")
+#available covariates (defined exogenous): "direct.marketing", "high.season", "gender"
+covariate.names <- c("direct.marketing") 
 #covariate.names <- c("direct.marketing", "high.season")
 
 #combine parameters
@@ -53,14 +58,13 @@ life.gammas = c(gamma4)
 #life.gammas = c(gamma4, gamma5, gamma6)
 
 
-
 # Get intervals of important dates
 cal.start.date      <- min(covariates.dynamic$Cov.Date)
 hold.end.date       <- max(covariates.dynamic$Cov.Date)
 
 
-## Preparations ----
-# Covariate table
+##  Covariate table----
+# Generate the tables containig the covariates and the gamma parameters for all customers and time periods
 
 # Transaction process
 transaction.adj.m.all <-  .pnbd_Sim_DynCov_gen.calc_adj_m(covariates.dynamic=covariates.dynamic, cov.gammas = trans.gammas, 
@@ -72,7 +76,6 @@ lifetime.adj.m.all <-     .pnbd_Sim_DynCov_gen.calc_adj_m(covariates.dynamic=cov
                                                                      covariate.names = covariate.names,
                                                                      lower.date = cal.start.date,
                                                                      upper.date = hold.end.date )
-
 
 ## Simulation ----
 # Generate the transactions for every customer
