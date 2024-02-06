@@ -120,7 +120,7 @@ pnbd_Simulation_Dynamic<- function(dt.life.i, dt.trans.i, params, date.estimatio
     U = stats::runif(1)
 
     # Find omega such that U-F(omega)=0
-    fun <- function (omega) (.lifetimecdf(omega=omega,dt.life.i=dt.life.i,startdate=datestmp[1]) - U)^2
+    fun <- function (omega) {((.lifetimecdf(omega=omega,dt.life.i=dt.life.i,startdate=datestmp[1]) - U))^2*1000}
 
     # Idea: omega can be arbitrarily large in theory, but of course in practice it only can be as long as we have covariates
     # So the idea to search for the solution of the equation below between 0 to the farthest point at which we still have covariates.
